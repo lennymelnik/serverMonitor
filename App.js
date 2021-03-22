@@ -66,14 +66,14 @@ const addItem = async (item) => {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(item)
   };
-  const res = await fetch("http://localhost:8000/addServer", requestOptions).then(setRefresh(refresh+1))
+  const res = await fetch("http://10.0.0.12:8000/addServer", requestOptions).then(setRefresh(refresh+1))
 
 
 }
 
 //get Data
 const fetchData = async () => {
-    const res = await fetch("http://localhost:8000/servers")
+    const res = await fetch("http://10.0.0.12:8000/servers")
     const data = await res.json()
     return data
 }
