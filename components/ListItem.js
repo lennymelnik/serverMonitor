@@ -1,28 +1,34 @@
-import React from 'react'
+import React, { useState , useEffect} from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/dist/MaterialIcons'
 
 
 
+
 const IfOnline = ({item}) => {
+   
     if(item.status){
         return (
-            <Icon name="rss-feed" size = {20} color = "firebrick" onPress={() => getServers() }/>     
-            
+            <View>
+            <Icon name="rss-feed" size = {20} color = "firebrick"/>     
+            <Text>Online</Text></View>
                 )
     }else{
         return (
-            <Icon name="portable-wifi-off" size = {20} color = "firebrick" onPress={() => getServers() }/>     
-            
+            <View>
+            <Icon name="portable-wifi-off" size = {20} color = "firebrick" />     
+            <Text>Offline</Text></View>
+
                 )
     }
   
   
   }
   
-const ListItem = ({item, getServers}) => {
+const ListItem = ({item, refresh, setRefresh, }) => {
+  
     return (
-        <TouchableOpacity style={styles.listItem}>
+        <TouchableOpacity style={styles.listItem} onPress={() => setRefresh(refresh + 1) }>
             <View style={styles.listItemView}>
             <Text style={styles.listItemText}>{item.name}</Text>
             <IfOnline item = { item }/>

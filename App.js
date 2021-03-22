@@ -11,51 +11,52 @@ import ListItem from './components/ListItem'
 const App = () => {
 
 
-const [tasks, setTasks] = useState([
-  {name : "Bob", tag : "School", due : new Date()},
-  {name : "Freee", tag : "School", due : new Date()},
+const [tasks, setTasks] = useState([])
 
-  {name : "Fred", tag : "School", due : new Date()},
-
-  {name : "Mercery", tag : "School", due : new Date()}])
-
+const [refresh, setRefresh] = useState(0)
 
 useEffect(() =>{
+  console.log("Refreshing servers")
+
    const getTasks = async () => {
        var tasksFromServer = await fetchData()
-       tasksFromServer.forEach(async server => {
-         console.log(server.name)
-         try {
+       .then(result => getServerStatus(result))
+       .then(newResult => setTasks(newResult))
 
-        const res = await fetch(server.address, {method : 'GET', body : null})
-        server.status = await res.ok
-         }
-         catch(error){
-          server.status = false
-
-
-         }
-        
-    
-        console.log(server.name, server.status)
-      })
-          
-      console.log("HERE")
-       setTasks(tasksFromServer)
+       
+       console.log("Done Refreshing")
    }
-    getTasks()
-}, [])
+   getTasks()
+  
+}, [ refresh ])
 
-  const getServers = async () => {
-    var newStatus = []
-    console.log("I AM HERE", )
-    for(i=0;i<tasks.length;i++){
-      const statusFromServer = await fetchServer(tasks[i].address)
-      console.log("Server Status", statusFromServer)
-  
+
+const getServerStatus = async (allServers) => {
+
+  var newList = []
+  for (let i = 0; i < allServers.length; i++) {
+    try {
+      const res = await fetch(allServers[i].address, {method : 'GET', body : null})
+      allServers[i].status = await res.ok
+      console.log(allServers[i].status)
+      
+    } catch (error) {
+      allServers[i].status = false
+      
     }
+    newList.push(allServers[i])
+
   
-  }
+
+     
+    }
+
+ console.log("ALL SERVERS", newList)
+   
+
+
+return newList
+}
 
 
 //get Data
@@ -70,9 +71,9 @@ const fetchData = async () => {
   
     <View style={styles.container}>
     
-    <Header title='Monitoring App'/>
+    <Header title='Monitoring App' />
     <FlatList data={ tasks } 
-    renderItem={({item}) => <ListItem item={item} getServers={getServers}/>} />
+    renderItem={({item}) => <ListItem item={item} setRefresh={setRefresh} refresh={ refresh }/>} />
 
     </View>
   
