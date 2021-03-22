@@ -1,10 +1,12 @@
 import React, { useState , useEffect} from 'react';
 import { ScrollView } from 'react-native';
 
-import { StyleSheet, FlatList, Button, VirtualizedList,View, SafeAreaView, Text, Alert } from 'react-native';
+import { StyleSheet, FlatList, Button, VirtualizedList,View, Text, Alert } from 'react-native';
 import Header from './components/Header'
 import { uuid } from 'uuidv4'
 import ListItem from './components/ListItem'
+import AddItem from './components/AddItem'
+
 
 
 
@@ -58,6 +60,16 @@ const getServerStatus = async (allServers) => {
 return newList
 }
 
+const addItem = async (item) => {
+  var requestOptions = {
+    method: 'POST',
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(item)
+  };
+  const res = await fetch("http://localhost:8000/addServer", requestOptions).then(setRefresh(refresh+1))
+
+
+}
 
 //get Data
 const fetchData = async () => {
@@ -72,6 +84,7 @@ const fetchData = async () => {
     <View style={styles.container}>
     
     <Header title='Monitoring App' />
+    <AddItem addItem={addItem}/>
     <FlatList data={ tasks } 
     renderItem={({item}) => <ListItem item={item} setRefresh={setRefresh} refresh={ refresh }/>} />
 
