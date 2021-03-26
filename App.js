@@ -1,32 +1,39 @@
 import React, { useState , useEffect} from 'react';
 import { ScrollView } from 'react-native';
-
 import { StyleSheet, FlatList, Button, VirtualizedList,View, Text, Alert } from 'react-native';
 import Header from './components/Header'
-import { uuid } from 'uuidv4'
+import uuid from 'react-uuid'
 import ListItem from './components/ListItem'
 import AddItem from './components/AddItem'
 
-
-
+import { db , firebase} from './firebase'
 
 const App = () => {
-
 
 const [tasks, setTasks] = useState([])
 
 const [refresh, setRefresh] = useState(0)
 
+
 useEffect(() =>{
   console.log("Refreshing servers")
 
    const getTasks = async () => {
-       var tasksFromServer = await fetchData()
-       .then(result => getServerStatus(result))
-       .then(newResult => setTasks(newResult))
 
-       
-       console.log("Done Refreshing")
+      const response = db.collection("servers")
+
+      const data = await response.get()
+      var allServers = []
+      data.docs.forEach(item=>{
+        console.log("Data: ",item.data())
+        allServers.push(item.data())
+
+       })
+       getServerStatus(allServers).then((result)=>{
+         setTasks(result)
+       })
+      
+      
    }
    getTasks()
   
@@ -61,19 +68,34 @@ return newList
 }
 
 const addItem = async (item) => {
-  var requestOptions = {
-    method: 'POST',
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(item)
-  };
-  const res = await fetch("http://10.0.0.12:8000/addServer", requestOptions).then(setRefresh(refresh+1))
-
-
+  
+  if(!item.name || !item.address){
+    Alert.alert('Error','Please fill out all the fields',{Text:'Ok'})
+   
+  
+  }else{
+   const newServer = {
+    name: item.name,
+    address: item.address,
+    id : uuid()
+  }
+db.collection("servers").add(newServer)
+.then((docRef) => {
+  setTasks([...tasks, newServer])
+console.log("Document written with ID: ", docRef.id);
+})
+.catch((error) => {
+  console.error("Error adding document: ", error);
+});
+  }
+  
 }
 
 //get Data
 const fetchData = async () => {
-    const res = await fetch("http://10.0.0.12:8000/servers")
+  console.log("FETCHING ALL SERVERS")
+
+    const res = await fetch("http://74.208.22.236:8080/servers")
     const data = await res.json()
     return data
 }
